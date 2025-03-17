@@ -37,10 +37,10 @@ module TimeClock
   #===========================================================================
   # Here you can set the initial values of the time script
   #===========================================================================
-  @day = 16
-  @week_day = 6
-  @period = 2
-  @month = 2
+  @day = 0
+  @week_day = 0
+  @period = 0
+  @month = 0
   @year = 2025
   
   module ConfigSetting
