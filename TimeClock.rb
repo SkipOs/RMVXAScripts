@@ -39,8 +39,8 @@ module TimeClock
   #===========================================================================
   @day = 16
   @week_day = 6
-  @period = 3
-  @month = 3
+  @period = 2
+  @month = 2
   @year = 2025
   
   module ConfigSetting
