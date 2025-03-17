@@ -5,10 +5,37 @@
 # - by Skip0s
 # - ver 1.0
 #===========================================================================
+# - USAGE -
+# You can use this script by calling it on script calls.
+#
+#   TimeClock.clock_tick              # Advance an instance of time and process it
+#
+#   TimeClock.period                  # Return the period name
+#   TimeClock.day                     # Return the day value
+#   TimeClock.week_day                # Return the weekday name
+#   TimeClock.month                   # Return the month name
+#   TimeClock.year                    # Return the year value
+#
+#   TimeClock.set_day(value)          # Set the day value
+#   TimeClock.set_week_day(value)     # Set the weekday value
+#   TimeClock.set_period(value)       # Set the period value
+#   TimeClock.set_month(value)        # Set the month value
+#   TimeClock.set_year(value)         # Set the year value
+#===========================================================================
+# - Tips - 
+# You can, in overall, call some of these in common events so time passes when
+# Triggering them. Then you can add some tint to screen and make the time passage
+# visual, be it for months, days or only periods.
+#
+# I used script calls so it would be easier for me to make a custom time 
+# passing cutscene while also being able to show time anywhere!
+#===========================================================================
 
 module TimeClock
   #===========================================================================
   # - Global Time Variables
+  #===========================================================================
+  # Here you can set the initial values of the time script
   #===========================================================================
   @day = 16
   @week_day = 6
