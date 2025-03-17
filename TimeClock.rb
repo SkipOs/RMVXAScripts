@@ -3,7 +3,7 @@
 # A script that add time ticking and can be called inside the game
 #===========================================================================
 # - by Skip0s
-# - ver 1.0
+# - ver 1.2
 #===========================================================================
 # - USAGE -
 # You can use this script by calling it on script calls.
