@@ -10,10 +10,14 @@
 #
 #   TimeClock.clock_tick              # Advance an instance of time and process it
 #
-#   TimeClock.period                  # Return the period name
+#   TimeClock.period_name             # Return the period name
+#   TimeClock.week_day_name           # Return the weekday name
+#   TimeClock.month_name              # Return the month name
+#
+#   TimeClock.period                  # Return the period value
 #   TimeClock.day                     # Return the day value
-#   TimeClock.week_day                # Return the weekday name
-#   TimeClock.month                   # Return the month name
+#   TimeClock.week_day                # Return the weekday value
+#   TimeClock.month                   # Return the month value
 #   TimeClock.year                    # Return the year value
 #
 #   TimeClock.set_day(value)          # Set the day value
@@ -37,10 +41,10 @@ module TimeClock
   #===========================================================================
   # Here you can set the initial values of the time script
   #===========================================================================
-  @day = 0
-  @week_day = 0
-  @period = 0
-  @month = 0
+  @day = 16
+  @week_day = 6
+  @period = 3
+  @month = 3
   @year = 2025
   
   module ConfigSetting
@@ -78,18 +82,30 @@ module TimeClock
     @day
   end
 
-  def self.week_day
+  def self.week_day_name
     ConfigSetting::WEEKDAY[@week_day]
   end
+  
+  def self.week_day
+    @week_day
+  end
 
-  def self.period
+  def self.period_name
     ConfigSetting::PERIODDAY[@period]
   end
-
-  def self.month
-    ConfigSetting::MONTH[@month]
+  
+  def self.period_val
+    @period
   end
 
+  def self.month_name
+    ConfigSetting::MONTH[@month]
+  end
+  
+  def self.month
+    @month
+  end
+  
   def self.year
     @year
   end
@@ -157,6 +173,18 @@ class Game_Interpreter
     TimeClock.day
   end
 
+  def clock_weekday_name
+    TimeClock.week_day_name
+  end
+
+  def clock_period_name
+    TimeClock.period_name
+  end
+
+  def clock_month_name
+    TimeClock.month_name
+  end
+  
   def clock_weekday
     TimeClock.week_day
   end
