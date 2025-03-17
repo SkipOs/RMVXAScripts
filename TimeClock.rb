@@ -94,7 +94,7 @@ module TimeClock
     ConfigSetting::PERIODDAY[@period]
   end
   
-  def self.period_val
+  def self.period
     @period
   end
 
