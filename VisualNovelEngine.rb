@@ -1,16 +1,28 @@
 #===========================================================================
 # - Visual Novel Scene
 # A script that add a custom Visual-Novel-Like Scene for RPG Maker VX Ace
-#===========================================================================
+#---------------------------------------------------------------------------
 # - by Skip0s
-# - ver 0.1 02-08-25
-#===========================================================================
+# - ver 0.6 02-08-25
+#---------------------------------------------------------------------------
 # - USAGE -
 # You can use this script by calling it on script calls.
 #
 #   SceneManager.call(Scene_VisualNovel)      #Call Custom Scene
+#
+#===========================================================================
+# - GENERAL OPTIONS
+# Here you can customize the script
 #===========================================================================
 
+module VNConfig
+  ACTION_MENU_SIDE      = :right    # Set the side of the action menu for left or right (:left or :right)
+  USE_MAP               = false     # Set if the "map" will be used in the game
+  ACTION_MENU_WIDTH     = 200       # Set the custom size for action menu width
+  TOP_BAR_COLUMNS       = 3         # Set the total count of the top bar columns
+  HUD_HEIGHT            = 36        # Set the height of the HUD (top bar)
+  DIALOGUE_BOX_HEIGHT   = 100      # Set the height of the HUD (top bar)
+end
 
 #===========================================================================
 # - CUSTOM MENU OPTIONS
@@ -20,50 +32,32 @@
 module VNConfig
   ACTION_MENU_COMMANDS = [
     { name: "Item",       symbol: :item,   scene: Scene_Item   },
-    { name: "Equipar",    symbol: :equip,  scene: Scene_Equip  },
-    { name: "Status",     symbol: :status, scene: Scene_Status },
-    { name: "Habilidades",symbol: :skill,  scene: Scene_Skill  },    
+#    { name: "Equipar",    symbol: :equip,  scene: Scene_Equip  },
+#    { name: "Status",     symbol: :status, scene: Scene_Status },
+#    { name: "Habilidades",symbol: :skill,  scene: Scene_Skill  },
     { name: "Salvar",     symbol: :save,   scene: Scene_Save   },
+    { name: "Interagir",  symbol: :interact, scene: nil         },  # só para teste de texto
   ]
 end
-
 #===========================================================================
-# - Window_ActionMenu Code
-# The Right side menu 
+# - Window_HUD Code
+# Top-Bar config
 #===========================================================================
 
-class Window_ActionMenu < Window_Command
-  # x, y: posição; não precisa width/height aqui
-  def initialize(x, y, width = 200)
-    @window_width = width
-    super(x, y)
-    select(0)
-    activate
+class Window_HUD < Window_Base
+  def initialize
+    super(0, 0, Graphics.width, VNConfig::HUD_HEIGHT)
+    refresh
   end
 
-  # Largura fixa
-  def window_width
-    @window_width
-  end
-
-  # Altura exata para item_max linhas
-  def window_height
-    fitting_height(item_max)
-  end
-
-  # Mostrar todas as linhas de uma vez, sem scroll
-  def visible_line_number
-    item_max
-  end
-
-  # Puxa sempre da config
-  def make_command_list
-    VNConfig::ACTION_MENU_COMMANDS.each do |cmd|
-      add_command(cmd[:name], cmd[:symbol], true)
-    end
+  def refresh
+    contents.clear
+    # Desenha nome do mapa na primeira coluna
+    column_width = Graphics.width / VNConfig::TOP_BAR_COLUMNS
+    draw_text(4, 0, column_width, line_height, $game_map.display_name)
+    # TODO: desenhar variáveis nas outras colunas
   end
 end
-
 
 #===========================================================================
 # - Window_Dialogue Code
@@ -71,177 +65,145 @@ end
 #===========================================================================
 
 class Window_Dialogue < Window_Base
-  def initialize(x, y, width, lines = 4)
-    super(x, y, width, fitting_height(lines))
-    @full_text     = ""
-    @typed_text    = ""
-    @char_index    = 0
-    @text_complete = true
+  attr_reader :finished
+
+  def initialize
+    super(0, Graphics.height - VNConfig::DIALOGUE_BOX_HEIGHT, Graphics.width, VNConfig::DIALOGUE_BOX_HEIGHT)
+    @text_queue = []
+    @finished = true
+    refresh
   end
 
-  def show_text(text)
-    contents.clear
-    @full_text     = convert_escape_characters(text.to_s)
-    @typed_text    = ""
-    @char_index    = 0
-    @text_complete = false
-  end
-
-  def update
-    super
-    return if @text_complete || !typing_enabled?
-    @frame ||= 0; @frame += 1
-    if @frame % 2 == 0
-      @typed_text << @full_text[@char_index]
-      contents.clear
-      draw_text_ex(0, 0, @typed_text)
-      @char_index += 1
-      if @char_index >= @full_text.size
-        @text_complete = true
-      end
-    end
-  end
-
-  def finish_typing
-    return if @text_complete
-    @typed_text = @full_text.dup
-    contents.clear
-    draw_text_ex(0, 0, @typed_text)
-    @text_complete = true
-  end
-
-  def typing?
-    !@text_complete
-  end
-
-  private
-
-  def typing_enabled?
-    Cirno::Persistence.read_general_setting("Enable Typing Effect") != "false"
-  end
-end
-
-
-#===========================================================================
-# - Window_HUD Code
-# Top-Bar config
-#===========================================================================
-
-class Window_HUD < Window_Base
-  # x, y, width em pixels; lines = número de linhas de texto
-  def initialize(x, y, width, lines = 1)
-    # fitting_height(lines) calcula altura necessária para 'lines' linhas
-    super(x, y, width, fitting_height(lines))
-    @last_values = {}
+  # Define o texto a exibir (pode conter múltiplas linhas)
+  def set_text(text)
+    @text_queue = text.split("\n")
+    @finished = false
     refresh
   end
 
   def refresh
     contents.clear
-    # Exemplo: mostrar três valores em colunas
-    vals = [
-      ["Gold", $game_party.gold],
-      ["Var1", $game_variables[1]],
-      ["Var2", $game_variables[2]]
-    ]
-    cols = vals.size
-    col_w = contents.width / cols
-    vals.each_with_index do |(label, val), i|
-      draw_text(col_w*i, 0, col_w-4, line_height, "#{label}: #{val}", 0)
-    end
+    return if @finished
+    draw_text_ex(4, 4, @text_queue.first)
   end
 
-  def update
-    super
-    current = { g: $game_party.gold, v1: $game_variables[1], v2: $game_variables[2] }
-    if current != @last_values
-      @last_values = current
-      refresh
-    end
+  # Avança para a próxima linha/texto
+  def advance
+    @text_queue.shift
+    @finished = @text_queue.empty?
+    refresh
   end
 end
 
+#===========================================================================
+# - Window_ActionMenu Code
+# The Right side menu
+#===========================================================================
+
+class Window_ActionMenu < Window_Command
+  def initialize
+    x = VNConfig::ACTION_MENU_SIDE == :left ? 0 : Graphics.width - VNConfig::ACTION_MENU_WIDTH
+    y = VNConfig::HUD_HEIGHT
+    super(x, y)                    # aceita apenas (x, y)
+    self.width  = window_width
+    self.height = window_height
+    refresh
+    self.index = 0
+  end
+
+  def window_width
+    VNConfig::ACTION_MENU_WIDTH
+  end
+
+  def window_height
+    Graphics.height - VNConfig::HUD_HEIGHT - VNConfig::DIALOGUE_BOX_HEIGHT
+  end
+
+  def make_command_list
+    VNConfig::ACTION_MENU_COMMANDS.each { |cmd| add_command(cmd[:name], cmd[:symbol]) }
+  end
+end
 
 #===========================================================================
 # - Scene_VisualNovel Code
 #===========================================================================
-
 class Scene_VisualNovel < Scene_Base
-  # constantes de layout
-  RESIZE_WIDTH     = 704
-  RESIZE_HEIGHT    = 384
-  DIALOGUE_LINES   = 4
-  HUD_LINES        = 1
-
   def start
     super
     create_hud
     create_dialogue
     create_action_menu
-  end
-
-  def create_hud
-    @hud = Window_HUD.new(0, 0, RESIZE_WIDTH, HUD_LINES)
-  end
-
-  def create_dialogue
-    dlg_h = Window_Base.new(0, 0, 0, 0).fitting_height(DIALOGUE_LINES)
-    @dialogue = Window_Dialogue.new(0, RESIZE_HEIGHT - dlg_h, RESIZE_WIDTH, DIALOGUE_LINES)
-  end
-
-  def create_action_menu
-    menu_x = RESIZE_WIDTH - Window_ActionMenu.new(0,0).window_width
-    @action = Window_ActionMenu.new(menu_x, @hud.height)
-    # associa handlers
-    VNConfig::ACTION_MENU_COMMANDS.each do |cmd|
-      @action.set_handler(cmd[:symbol], proc { SceneManager.call(cmd[:scene]) })
-    end
-    @action.set_handler(:cancel, method(:on_action_cancel))
+    @mode = :action
   end
 
   def update
     super
-    # ESC (27) abre Config
-    if Input.trigger?(:B) && Input.recent_triggered == 27
-      Sound.play_cancel
-      SceneManager.call(Scene_Config)
-      return
+    case @mode
+    when :action then update_action
+    when :text   then update_text
+    when :idle   then update_idle
     end
+  end
 
-    # C (67) abre Save
-    if Input.trigger?(:C) && Input.recent_triggered == 67
-      Sound.play_ok
-      SceneManager.call(Scene_Save)
-      return
-    end
+  private
 
-    # Próxima/Confirm (Z, Enter, Space)
+  # Creating the windows
+  def create_hud
+    @hud_window = Window_HUD.new
+  end
+
+  def create_dialogue
+    @dialogue_window = Window_Dialogue.new
+  end
+
+  def create_action_menu
+    @action_menu = Window_ActionMenu.new
+    @action_menu.set_handler(:ok,     method(:on_action_ok))
+    @action_menu.set_handler(:cancel, method(:on_action_cancel))
+  end
+
+  # Fluxo: ação -> texto -> idle
+ def update_action
     if Input.trigger?(:C)
-      if @dialogue.typing?
-        @dialogue.finish_typing
-      else
-        @action.activate
-      end
-    end
-
-    # Voltar/X (88)
-    if Input.trigger?(:B) && Input.recent_triggered == 88
-      Sound.play_cancel
+      @action_menu.call_ok_handler
+    elsif Input.trigger?(:B)   # reativa o cancel aqui
       on_action_cancel
-      return
     end
+  end
 
-    @hud.update
-    @dialogue.update
-    @action.update
+  def on_action_ok
+    sym = @action_menu.current_symbol
+    if sym == :interact
+      # seu loop de teste
+      sample = [
+        "Linha 1: Você toca na porta antiga…",
+        "Linha 2: Ela range ao se abrir lentamente…",
+        "Linha 3: Um corredor escuro se revela à sua frente."
+      ].join("\n")
+      @dialogue_window.set_text(sample)
+      @mode = :text
+    else
+      cmd = VNConfig::ACTION_MENU_COMMANDS.find { |c| c[:symbol] == sym }
+      SceneManager.call(cmd[:scene]) if cmd && cmd[:scene]
+    end
   end
 
   def on_action_cancel
-    @action.activate
+    # volta ao menu de configurações
+    SceneManager.call(Scene_Config)
   end
 
-  def terminate
-    super
-    [@hud, @dialogue, @action].each(&:dispose)
+  def update_text
+    if Input.trigger?(:C) || Input.trigger?(:B)
+      if @dialogue_window.finished
+        @mode = :idle
+      else
+        @dialogue_window.advance
+      end
+    end
+  end
+
+  def update_idle
+    @mode = :action
   end
 end
