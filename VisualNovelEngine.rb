@@ -3,7 +3,7 @@
 # A script that add a custom Visual-Novel-Like Scene for RPG Maker VX Ace
 #===========================================================================
 # - by Skip0s
-# - ver 0.1
+# - ver 0.1 02-08-25
 #===========================================================================
 # - USAGE -
 # You can use this script by calling it on script calls.
