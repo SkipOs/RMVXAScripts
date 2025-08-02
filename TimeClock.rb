@@ -60,7 +60,7 @@ module TimeClock
     #===========================================================================
     # - Month Name def (0 = January)
     #===========================================================================
-    MONTH = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro"]
+    MONTH = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
     MONTHCOUNT = MONTH.size - 1
     
     #===========================================================================
