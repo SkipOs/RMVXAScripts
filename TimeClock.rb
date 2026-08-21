@@ -3,28 +3,24 @@
 # A script that add time ticking and can be called inside the game
 #===========================================================================
 # - by Skip0s
-# - ver 1.2
+# - ver 1.5
 #===========================================================================
 # - USAGE -
 # You can use this script by calling it on script calls.
 #
-#   TimeClock.clock_tick              # Advance an instance of time and process it
+#   clock_tick                        # Advance an instance of time and process it
 #
-#   TimeClock.period_name             # Return the period name
-#   TimeClock.week_day_name           # Return the weekday name
-#   TimeClock.month_name              # Return the month name
+#   clock_period                      # Return the period name (String)
+#   clock_day                         # Return the day value (int)
+#   clock_weekday                     # Return the weekday name (string)
+#   clock_month                       # Return the month name (string)
+#   clock_year                        # Return the year value (int)
 #
-#   TimeClock.period                  # Return the period value
-#   TimeClock.day                     # Return the day value
-#   TimeClock.week_day                # Return the weekday value
-#   TimeClock.month                   # Return the month value
-#   TimeClock.year                    # Return the year value
-#
-#   TimeClock.set_day(value)          # Set the day value
-#   TimeClock.set_week_day(value)     # Set the weekday value
-#   TimeClock.set_period(value)       # Set the period value
-#   TimeClock.set_month(value)        # Set the month value
-#   TimeClock.set_year(value)         # Set the year value
+#   set_day(value)                    # Set the day value (int)
+#   set_week_day(value)               # Set the weekday value (int)
+#   set_period(value)                 # Set the period value (int)
+#   set_month(value)                  # Set the month value (int)
+#   set_year(value)                   # Set the year value (int)
 #===========================================================================
 # - Tips - 
 # You can, in overall, call some of these in common events so time passes when
@@ -41,33 +37,33 @@ module TimeClock
   #===========================================================================
   # Here you can set the initial values of the time script
   #===========================================================================
-  @day = 16
-  @week_day = 6
-  @period = 3
-  @month = 3
-  @year = 2025
+  @day = 0
+  @week_day = 0
+  @period = 0
+  @month = 0
+  @year = 0
   
   module ConfigSetting
-    #===========================================================================
-    # - Period Day Name def (0 = Early Morning)
-    #===========================================================================
-    # You can change the names of all sections, or even 
-    # add more periods if you want    
-    #===========================================================================
-    PERIODDAY = ["Manhã", "Tarde", "Noite"]
-    PERIODCOUNT = PERIODDAY.size - 1
-    
-    #===========================================================================
-    # - Month Name def (0 = January)
-    #===========================================================================
-    MONTH = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
-    MONTHCOUNT = MONTH.size - 1
-    
-    #===========================================================================
-    # - Week Day Name def (0 = Sunday)
-    #===========================================================================
-    WEEKDAY = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"]
-    WEEKDAYCOUNT = WEEKDAY.size - 1
+  #===========================================================================
+  # - Period Day Name def (0 = Morning)
+  #===========================================================================
+  # You can change the names of all sections, or even 
+  # add more periods if you want    
+  #===========================================================================
+  PERIODDAY = ["Morning", "Lunchtime", "Afternoon", "After School", "Evening", "Late Night"]
+  PERIODCOUNT = PERIODDAY.size - 1
+  
+  #===========================================================================
+  # - Month Name def (0 = January)
+  #===========================================================================
+  MONTH = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+  MONTHCOUNT = MONTH.size - 1
+  
+  #===========================================================================
+  # - Week Day Name def (0 = Sunday)
+  #===========================================================================
+  WEEKDAY = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+  WEEKDAYCOUNT = WEEKDAY.size - 1
   end #Config Setting
 
   #===========================================================================
@@ -82,30 +78,18 @@ module TimeClock
     @day
   end
 
-  def self.week_day_name
+  def self.week_day
     ConfigSetting::WEEKDAY[@week_day]
   end
-  
-  def self.week_day
-    @week_day
-  end
 
-  def self.period_name
+  def self.period
     ConfigSetting::PERIODDAY[@period]
   end
-  
-  def self.period
-    @period
-  end
 
-  def self.month_name
+  def self.month
     ConfigSetting::MONTH[@month]
   end
-  
-  def self.month
-    @month
-  end
-  
+
   def self.year
     @year
   end
@@ -173,18 +157,6 @@ class Game_Interpreter
     TimeClock.day
   end
 
-  def clock_weekday_name
-    TimeClock.week_day_name
-  end
-
-  def clock_period_name
-    TimeClock.period_name
-  end
-
-  def clock_month_name
-    TimeClock.month_name
-  end
-  
   def clock_weekday
     TimeClock.week_day
   end
